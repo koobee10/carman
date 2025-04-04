@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}{{ record.service_type }} - Project Car Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-0">{{ record.service_type }}</h1>
+            <h5 class="text-muted mb-3">
+                {{ record.date|date:"F d, Y" }} | 
+                {{ record.odometer|intcomma }} {{ distance_unit }}
+            </h5>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <div class="btn-group">
+                {% if record.id %}
+                <a href="{% url 'maintenance-record-update' record.id %}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'maintenance-record-delete' record.id %}" class="btn btn-outline-danger">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+                {% else %}
+                <a href="{% url 'maintenance-record-list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list"></i> Back to Records
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Service Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Vehicle:</strong> 
+                            {% if record.vehicle and record.vehicle.id %}
+                            <a href="{% url 'vehicle-detail' record.vehicle.id %}">{{ record.vehicle.nickname }}</a>
+                            {% else %}
+                            {{ record.vehicle.nickname|default:"No vehicle assigned" }}
+                            {% endif %}
+                            </p>
+                            <p><strong>Date:</strong> {{ record.date|date:"F d, Y" }}</p>
+                            <p><strong>Odometer:</strong> {{ record.odometer|intcomma }} {{ distance_unit }}</p>
+                            <p><strong>Service Type:</strong> {{ record.service_type }}</p>
+                            {% if record.shop_name %}
+                            <p><strong>Shop Name:</strong> {{ record.shop_name }}</p>
+                            {% endif %}
+                            {% if record.shop_location %}
+                            <p><strong>Shop Location:</strong> {{ record.shop_location }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Description:</strong> {{ record.description }}</p>
+                            {% if record.parts_used %}
+                            <p><strong>Parts Used:</strong> {{ record.parts_used }}</p>
+                            {% endif %}
+                            {% if record.labor_details %}
+                            <p><strong>Labor Details:</strong> {{ record.labor_details }}</p>
+                            {% endif %}
+                            {% if record.cost %}
+                            <p><strong>Cost:</strong> {{ currency_symbol }}{{ record.cost|floatformat:2 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if record.notes %}
+                    <hr>
+                    <h6>Notes</h6>
+                    <p>{{ record.notes }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% if record.vehicle and record.vehicle.id %}
+                        <a href="{% url 'vehicle-maintenance-records' record.vehicle.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1"><i class="fas fa-tools"></i> All Records</h5>
+                            </div>
+                            <p class="mb-1">View all service records for {{ record.vehicle.nickname }}</p>
+                        </a>
+                        <a href="{% url 'maintenance-record-create-for-vehicle' record.vehicle.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1"><i class="fas fa-plus-circle"></i> Add Service</h5>
+                            </div>
+                            <p class="mb-1">Record a new service for {{ record.vehicle.nickname }}</p>
+                        </a>
+                        <a href="{% url 'vehicle-detail' record.vehicle.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1"><i class="fas fa-car"></i> Vehicle Details</h5>
+                            </div>
+                            <p class="mb-1">Return to {{ record.vehicle.nickname }}</p>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'maintenance-record-list' %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1"><i class="fas fa-list"></i> All Records</h5>
+                            </div>
+                            <p class="mb-1">View all maintenance records</p>
+                        </a>
+                        <a href="{% url 'vehicle-list' %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1"><i class="fas fa-car"></i> All Vehicles</h5>
+                            </div>
+                            <p class="mb-1">Return to vehicles list</p>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Record Information</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <small class="text-muted">Added on {{ record.date_added|date:"F d, Y" }}</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Delete Service Record - Project Car Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h2 class="h4 mb-0">Confirm Deletion</h2>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">Delete Service Record?</h3>
+                    <p class="card-text">
+                        Are you sure you want to delete the service record "{{ record.service_type }}" performed on {{ record.date|date:"F d, Y" }}?
+                    </p>
+                    <p class="card-text text-danger">
+                        <strong>Warning:</strong> This action cannot be undone. Once deleted, this record will be permanently removed from your service history.
+                    </p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'maintenance-record-detail' record.id %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Update Mileage for {{ vehicle.nickname }} - Project Car Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-3">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'vehicle-list' %}">My Vehicles</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'vehicle-detail' vehicle.id %}">{{ vehicle.nickname }}</a></li>
+                    <li class="breadcrumb-item active">Update Mileage</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Update Mileage</h2>
+                </div>
+                <div class="card-body">
+                    <p class="mb-4">Current mileage: <strong>{{ vehicle.mileage|default:"0"|intcomma }} {{ distance_unit }}</strong></p>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="mileage" class="form-label">New Mileage ({{ distance_unit }})</label>
+                            <input type="number" class="form-control" id="mileage" name="mileage" min="{{ vehicle.mileage|default:0 }}" required>
+                            <div class="form-text">Enter the new mileage for {{ vehicle.nickname }}</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end">
+                            <a href="{% url 'vehicle-detail' vehicle.id %}" class="btn btn-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Update Mileage</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

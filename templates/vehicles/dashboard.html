@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Project Car Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-3">Welcome to Your Project Car Dashboard</h1>
+            <p class="lead">Manage your project vehicles, track expenses, and schedule maintenance all in one place.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'vehicle-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Vehicle
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        {% if vehicles %}
+            {% for vehicle in vehicles %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-dark text-white">
+                            {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ vehicle.nickname }}</h5>
+                            <p class="card-text text-muted">
+                                {% if vehicle.license_plate %}
+                                <small><i class="fas fa-id-card"></i> {{ vehicle.license_plate }}</small><br>
+                                {% endif %}
+                                {% if vehicle.vin %}
+                                <small><i class="fas fa-fingerprint"></i> {{ vehicle.vin }}</small>
+                                {% endif %}
+                            </p>
+                            
+                            {% if vehicle.description %}
+                            <p class="card-text">{{ vehicle.description|truncatechars:100 }}</p>
+                            {% endif %}
+                            
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'vehicle-detail' vehicle.id %}" class="btn btn-outline-primary btn-sm">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <div class="btn-group w-100" role="group">
+                                <a href="{% url 'vehicle-expenses' vehicle.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-money-bill"></i> Expenses
+                                </a>
+                                <a href="{% url 'vehicle-maintenance-records' vehicle.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-tools"></i> Service
+                                </a>
+                                <a href="{% url 'vehicle-maintenance-schedules' vehicle.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-calendar"></i> Schedule
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <h3 class="text-muted">You haven't added any vehicles yet!</h3>
+                        <p>Get started by adding your first project car.</p>
+                        <a href="{% url 'vehicle-create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add New Vehicle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

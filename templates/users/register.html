@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Register - Project Car Manager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h2 class="h4 mb-0">Create an Account</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        {{ form|crispy }}
+                    </fieldset>
+                    <div class="form-group mt-4">
+                        <button class="btn btn-primary" type="submit">Sign Up</button>
+                    </div>
+                </form>
+                <div class="border-top pt-3 mt-4">
+                    <small class="text-muted">
+                        Already have an account? <a class="ms-2" href="{% url 'login' %}">Sign In</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

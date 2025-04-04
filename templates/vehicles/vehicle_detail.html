@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ vehicle.nickname }} - Project Car Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-3">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'vehicle-list' %}">My Vehicles</a></li>
+                    <li class="breadcrumb-item active">{{ vehicle.nickname }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">{{ vehicle.nickname }}</h1>
+            <p class="lead">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <div class="btn-group">
+                <a href="{% url 'vehicle-update' vehicle.id %}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'vehicle-delete' vehicle.id %}" class="btn btn-outline-danger">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-light h-100">
+                <div class="card-body text-center">
+                    <h3 class="text-primary">{{ vehicle.mileage|default:"0"|intcomma }} {{ distance_unit }}</h3>
+                    <p class="text-muted mb-0">Current Mileage</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-light h-100">
+                <div class="card-body text-center">
+                    <h3 class="text-primary">{{ currency_symbol }}{{ total_spent|default:"0.00"|floatformat:2|intcomma }}</h3>
+                    <p class="text-muted mb-0">Total Spent</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-light h-100">
+                <div class="card-body text-center">
+                    <h3 class="text-primary">{{ maintenance_count|default:"0" }}</h3>
+                    <p class="text-muted mb-0">Service Records</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            {% if vehicle.images.all %}
+            <div id="vehicleCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    {% for image in vehicle.images.all %}
+                    <button type="button" data-bs-target="#vehicleCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %}></button>
+                    {% endfor %}
+                </div>
+                <div class="carousel-inner rounded">
+                    {% for image in vehicle.images.all %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ vehicle.nickname }}">
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#vehicleCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#vehicleCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+            {% else %}
+            <div class="card mb-4">
+                <div class="card-body text-center py-5">
+                    <h3 class="h5 mb-3">No Photos Added</h3>
+                    <p class="text-muted mb-3">You haven't added any photos for this vehicle yet.</p>
+                    <a href="{% url 'add-vehicle-image' vehicle.id %}" class="btn btn-primary">
+                        <i class="fas fa-camera"></i> Add Photos
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Vehicle Details</h2>
+                    {% if vehicle.images.all %}
+                    <a href="{% url 'add-vehicle-image' vehicle.id %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-camera"></i> Add Photo
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h3 class="h6 text-muted">Basic Information</h3>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Year:</span>
+                                    <span class="text-dark">{{ vehicle.year }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Make:</span>
+                                    <span class="text-dark">{{ vehicle.make }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Model:</span>
+                                    <span class="text-dark">{{ vehicle.model }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>License Plate:</span>
+                                    <span class="text-dark">{{ vehicle.license_plate|default:"-" }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Current Mileage:</span>
+                                    <span class="text-dark">{{ vehicle.mileage|intcomma }} {{ distance_unit }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h3 class="h6 text-muted">Additional Details</h3>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Color:</span>
+                                    <span class="text-dark">-</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>VIN:</span>
+                                    <span class="text-dark">{{ vehicle.vin|default:"-" }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Engine:</span>
+                                    <span class="text-dark">{{ vehicle.engine_type|default:"-" }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Engine Size:</span>
+                                    <span class="text-dark">{{ vehicle.engine_displacement|default:"-" }} L</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Engine Power:</span>
+                                    <span class="text-dark">{{ vehicle.engine_power|default:"-" }} hp</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Transmission:</span>
+                                    <span class="text-dark">{{ vehicle.get_transmission_type_display|default:"-" }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Transmission Gears:</span>
+                                    <span class="text-dark">{{ vehicle.transmission_gears|default:"-" }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span>Date Added:</span>
+                                    <span class="text-dark">{{ vehicle.date_added|date:"M d, Y"|default:"-" }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    {% if vehicle.notes %}
+                    <div class="row">
+                        <div class="col-12">
+                            <h3 class="h6 text-muted">Notes</h3>
+                            <p>{{ vehicle.notes|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Quick Actions</h2>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'vehicle-expenses' vehicle.id %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="icon-bg bg-success me-3">
+                                <i class="fas fa-dollar-sign text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="h6 mb-1">Expenses</h3>
+                                <p class="small text-muted mb-0">Track and manage expenses</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'vehicle-maintenance-records' vehicle.id %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="icon-bg bg-primary me-3">
+                                <i class="fas fa-tools text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="h6 mb-1">Service Records</h3>
+                                <p class="small text-muted mb-0">View maintenance history</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'vehicle-maintenance-schedules' vehicle.id %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="icon-bg bg-warning me-3">
+                                <i class="fas fa-calendar-alt text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="h6 mb-1">Maintenance Schedule</h3>
+                                <p class="small text-muted mb-0">View and manage scheduled maintenance</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'update-mileage' vehicle.id %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="icon-bg bg-info me-3">
+                                <i class="fas fa-tachometer-alt text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="h6 mb-1">Update Mileage</h3>
+                                <p class="small text-muted mb-0">Keep your mileage up to date</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'expense-create-for-vehicle' vehicle.id %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="icon-bg bg-secondary me-3">
+                                <i class="fas fa-plus text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="h6 mb-1">Add Expense</h3>
+                                <p class="small text-muted mb-0">Record a new expense</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'maintenance-record-create-for-vehicle' vehicle.id %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="icon-bg bg-dark me-3">
+                                <i class="fas fa-wrench text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="h6 mb-1">Record Service</h3>
+                                <p class="small text-muted mb-0">Log a maintenance service</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {% if due_schedules %}
+            <div class="card mb-4 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h2 class="h5 mb-0">Maintenance Due</h2>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for schedule in due_schedules %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ schedule.service_type }}</h6>
+                                <small class="text-muted">
+                                    {% if schedule.interval_type == 'mileage' %}
+                                    Due in {{ schedule.mileage_remaining|intcomma }} {{ distance_unit }}
+                                    {% elif schedule.interval_type == 'time' %}
+                                    Due {{ schedule.next_service_date|date:"M d, Y" }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <a href="{% url 'maintenance-record-create-for-vehicle' vehicle.id %}?service_type={{ schedule.service_type }}" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-check"></i> Done
+                            </a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <div class="card-footer bg-light">
+                    <a href="{% url 'vehicle-maintenance-schedules' vehicle.id %}" class="btn btn-sm btn-warning w-100">
+                        View All Schedules
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if recent_services %}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Recent Services</h2>
+                    <a href="{% url 'vehicle-maintenance-records' vehicle.id %}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for service in recent_services %}
+                    <li class="list-group-item">
+                        <h6 class="mb-1">{{ service.service_type }}</h6>
+                        <small class="text-muted">
+                            {{ service.service_date|date:"M d, Y" }}
+                            {% if service.odometer %}
+                            • {{ service.odometer|intcomma }} {{ distance_unit }}
+                            {% endif %}
+                            • {{ currency_symbol }}{{ service.cost|floatformat:2|intcomma }}
+                        </small>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            {% if recent_expenses %}
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Recent Expenses</h2>
+                    <a href="{% url 'vehicle-expenses' vehicle.id %}" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for expense in recent_expenses %}
+                    <li class="list-group-item">
+                        <h6 class="mb-1">{{ expense.description }}</h6>
+                        <small class="text-muted">
+                            {{ expense.date|date:"M d, Y" }} • 
+                            <span class="badge 
+                                {% if expense.category == 'Parts' %}bg-primary
+                                {% elif expense.category == 'Service' %}bg-success
+                                {% elif expense.category == 'Fuel' %}bg-warning text-dark
+                                {% elif expense.category == 'Insurance' %}bg-info text-dark
+                                {% elif expense.category == 'Registration' %}bg-secondary
+                                {% else %}bg-dark{% endif %}">
+                                {{ expense.category }}
+                            </span> • 
+                            {{ currency_symbol }}{{ expense.amount|floatformat:2|intcomma }}
+                        </small>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.icon-bg {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+</style>
+{% endblock %} 

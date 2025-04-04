@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Add Receipt - Project Car Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h2 class="h4 mb-0">Add Receipt for {{ expense.description }}</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Upload an image of your receipt to keep track of your expenses.
+                        </div>
+                        
+                        {{ form|crispy }}
+                        
+                        <div class="mt-4 text-end">
+                            <a href="{% url 'expense-detail' expense.id %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary ms-2">
+                                Upload Receipt
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

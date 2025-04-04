@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {% if form.instance.pk %}
+        Edit {{ form.instance.nickname }} - Project Car Manager
+    {% else %}
+        Add New Vehicle - Project Car Manager
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h2 class="h4 mb-0">
+                        {% if form.instance.pk %}
+                            Edit Vehicle: {{ form.instance.nickname }}
+                        {% else %}
+                            Add New Vehicle
+                        {% endif %}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="border-bottom pb-2 mb-3">Basic Information</h5>
+                                {{ form.nickname|as_crispy_field }}
+                                {{ form.make|as_crispy_field }}
+                                {{ form.model|as_crispy_field }}
+                                {{ form.year|as_crispy_field }}
+                                {{ form.license_plate|as_crispy_field }}
+                                {{ form.vin|as_crispy_field }}
+                                {{ form.mileage|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="border-bottom pb-2 mb-3">Technical Specifications</h5>
+                                {{ form.engine_type|as_crispy_field }}
+                                {{ form.engine_displacement|as_crispy_field }}
+                                {{ form.engine_power|as_crispy_field }}
+                                {{ form.transmission_type|as_crispy_field }}
+                                {{ form.transmission_gears|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h5 class="border-bottom pb-2 mb-3">Additional Information</h5>
+                                {{ form.description|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-end">
+                            <a href="{% url 'vehicle-list' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary ms-2">
+                                {% if form.instance.pk %}
+                                    Update Vehicle
+                                {% else %}
+                                    Add Vehicle
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

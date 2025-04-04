@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}
+    {% if form.instance.pk %}
+        Edit Expense - Project Car Manager
+    {% else %}
+        Add New Expense - Project Car Manager
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h2 class="h4 mb-0">
+                        {% if form.instance.pk %}
+                            Edit Expense
+                        {% else %}
+                            {% if view.kwargs.vehicle_id %}
+                                Add Expense for {{ form.initial.vehicle.nickname }}
+                            {% else %}
+                                Add New Expense
+                            {% endif %}
+                        {% endif %}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="border-bottom pb-2 mb-3">Basic Information</h5>
+                                {{ form.vehicle|as_crispy_field }}
+                                {{ form.date|as_crispy_field }}
+                                {{ form.description|as_crispy_field }}
+                                {{ form.category|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="border-bottom pb-2 mb-3">Cost Details</h5>
+                                {{ form.amount|as_crispy_field }}
+                                {{ form.tax|as_crispy_field }}
+                                {{ form.shipping|as_crispy_field }}
+                                {{ form.labor_cost|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <h5 class="border-bottom pb-2 mb-3">Vendor Information</h5>
+                                {{ form.vendor|as_crispy_field }}
+                                {{ form.vendor_location|as_crispy_field }}
+                                {{ form.vendor_url|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="border-bottom pb-2 mb-3">Additional Information</h5>
+                                {{ form.notes|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-end">
+                            {% if view.kwargs.vehicle_id %}
+                                <a href="{% url 'vehicle-expenses' view.kwargs.vehicle_id %}" class="btn btn-secondary">Cancel</a>
+                            {% else %}
+                                <a href="{% url 'expense-list' %}" class="btn btn-secondary">Cancel</a>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary ms-2">
+                                {% if form.instance.pk %}
+                                    Update Expense
+                                {% else %}
+                                    Add Expense
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

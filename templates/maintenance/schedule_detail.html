@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ schedule.name }} Schedule - Project Car Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-3">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'vehicle-list' %}">My Vehicles</a></li>
+                    {% if schedule.vehicle and schedule.vehicle.id %}
+                    <li class="breadcrumb-item"><a href="{% url 'vehicle-detail' schedule.vehicle.id %}">{{ schedule.vehicle.nickname }}</a></li>
+                    {% else %}
+                    <li class="breadcrumb-item">No Vehicle</li>
+                    {% endif %}
+                    <li class="breadcrumb-item"><a href="{% url 'maintenance-schedule-list' %}">Maintenance Schedules</a></li>
+                    <li class="breadcrumb-item active">{{ schedule.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">{{ schedule.name }}</h1>
+            <p class="lead">Maintenance Schedule for {{ schedule.vehicle.nickname }}</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <div class="btn-group">
+                {% if schedule.id %}
+                <a href="{% url 'maintenance-schedule-update' schedule.id %}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'maintenance-schedule-delete' schedule.id %}" class="btn btn-outline-danger">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+                {% else %}
+                <a href="{% url 'maintenance-schedule-list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list"></i> Back to Schedules
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title h4 mb-4">Schedule Details</h2>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Vehicle:</div>
+                        <div class="col-sm-8">
+                            {% if schedule.vehicle and schedule.vehicle.id %}
+                            <a href="{% url 'vehicle-detail' schedule.vehicle.id %}">
+                                {{ schedule.vehicle.nickname }} ({{ schedule.vehicle.year }} {{ schedule.vehicle.make }} {{ schedule.vehicle.model }})
+                            </a>
+                            {% else %}
+                            No vehicle assigned
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Service Type:</div>
+                        <div class="col-sm-8">{{ schedule.name }}</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Interval:</div>
+                        <div class="col-sm-8">
+                            {% if schedule.interval_type == 'mileage' %}
+                            Every {{ schedule.mileage_interval|intcomma }} {{ distance_unit }}
+                            {% elif schedule.interval_type == 'date' %}
+                            Every {{ schedule.time_interval_days }} days
+                            {% else %}
+                            Every {{ schedule.mileage_interval|intcomma }} {{ distance_unit }} or {{ schedule.time_interval_days }} days (whichever comes first)
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Status:</div>
+                        <div class="col-sm-8">
+                            <span class="badge {% if schedule.is_due %}bg-danger{% else %}bg-success{% endif %}">
+                                {% if schedule.is_due %}Overdue{% else %}Up to date{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Last Service:</div>
+                        <div class="col-sm-8">
+                            {% if schedule.last_service_date %}
+                            {{ schedule.last_service_date|date:"F d, Y" }}
+                            {% if schedule.last_service_odometer %}
+                            at {{ schedule.last_service_odometer|intcomma }} {{ distance_unit }}
+                            {% endif %}
+                            {% else %}
+                            Not yet serviced
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if schedule.interval_type == 'mileage' or schedule.interval_type == 'both' %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Next Service Mileage:</div>
+                        <div class="col-sm-8">
+                            {% if schedule.next_service_mileage %}
+                            {{ schedule.next_service_mileage|intcomma }} {{ distance_unit }}
+                            {% else %}
+                            Not calculated
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if schedule.interval_type == 'time' or schedule.interval_type == 'both' %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Next Service Date:</div>
+                        <div class="col-sm-8">{{ schedule.next_service_date|date:"F d, Y" }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if schedule.notes %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">Notes:</div>
+                        <div class="col-sm-8">{{ schedule.notes|linebreaks }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="card-title h4 mb-3">Quick Actions</h2>
+                    <div class="d-grid gap-2">
+                        {% if schedule.vehicle and schedule.vehicle.id %}
+                        <a href="{% url 'maintenance-record-create' schedule.vehicle.id %}?service_type={{ schedule.name }}" class="btn btn-success">
+                            <i class="fas fa-check"></i> Record Service
+                        </a>
+                        <a href="{% url 'maintenance-schedule-list-for-vehicle' schedule.vehicle.id %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list"></i> View All Schedules
+                        </a>
+                        <a href="{% url 'maintenance-schedule-create' schedule.vehicle.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus"></i> Add New Schedule
+                        </a>
+                        <a href="{% url 'vehicle-detail' schedule.vehicle.id %}" class="btn btn-outline-dark">
+                            <i class="fas fa-car"></i> Back to Vehicle
+                        </a>
+                        {% else %}
+                        <a href="{% url 'maintenance-schedule-list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list"></i> View All Schedules
+                        </a>
+                        <a href="{% url 'vehicle-list' %}" class="btn btn-outline-dark">
+                            <i class="fas fa-car"></i> Back to Vehicles
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title h4 mb-3">Schedule Information</h2>
+                    <p class="text-muted mb-0">
+                        Added: {{ schedule.date_added|date:"F d, Y" }} at {{ schedule.date_added|time:"g:i A" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

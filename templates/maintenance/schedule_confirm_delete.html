@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Delete Maintenance Schedule - Project Car Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h2 class="h4 mb-0">Confirm Deletion</h2>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">Delete Maintenance Schedule?</h3>
+                    <p class="card-text">
+                        Are you sure you want to delete the maintenance schedule "{{ schedule.name }}" for {{ schedule.vehicle.nickname }}?
+                    </p>
+                    <p class="card-text text-danger">
+                        <strong>Warning:</strong> This action cannot be undone. All reminders for this maintenance will be permanently removed.
+                    </p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'maintenance-schedule-detail' schedule.id %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
