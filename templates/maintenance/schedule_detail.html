@@ -54,7 +54,7 @@
                     <div class="row mb-3">
                         <div class="col-sm-4 text-muted">Vehicle:</div>
                         <div class="col-sm-8">
-                            {% if schedule.vehicle and schedule.vehicle.id %}
+                            {% if schedule.vehicle %}
                             <a href="{% url 'vehicle-detail' schedule.vehicle.id %}">
                                 {{ schedule.vehicle.nickname }} ({{ schedule.vehicle.year }} {{ schedule.vehicle.make }} {{ schedule.vehicle.model }})
                             </a>

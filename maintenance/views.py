@@ -86,6 +86,21 @@ class MaintenanceRecordCreateView(LoginRequiredMixin, CreateView):
         if vehicle_id:
             initial['vehicle'] = get_object_or_404(Vehicle, id=vehicle_id, owner=self.request.user)
         return initial
+    
+    def form_valid(self, form):
+        # Add debug logging
+        vehicle = form.cleaned_data.get('vehicle')
+        if vehicle:
+            print(f"DEBUG: Saving record with vehicle: {vehicle.id} - {vehicle.nickname}")
+        else:
+            print("DEBUG: No vehicle selected in the form")
+        return super().form_valid(form)
+        
+    def get_success_url(self):
+        vehicle_id = self.kwargs.get('vehicle_id')
+        if vehicle_id:
+            return f'/maintenance/records/vehicle/{vehicle_id}/'
+        return '/maintenance/records/'
 
 class MaintenanceRecordUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = MaintenanceRecord
@@ -188,6 +203,15 @@ class MaintenanceScheduleCreateView(LoginRequiredMixin, CreateView):
         if vehicle_id:
             initial['vehicle'] = get_object_or_404(Vehicle, id=vehicle_id, owner=self.request.user)
         return initial
+    
+    def form_valid(self, form):
+        # Add debug logging
+        vehicle = form.cleaned_data.get('vehicle')
+        if vehicle:
+            print(f"DEBUG: Saving schedule with vehicle: {vehicle.id} - {vehicle.nickname}")
+        else:
+            print("DEBUG: No vehicle selected in the form")
+        return super().form_valid(form)
     
     def get_success_url(self):
         vehicle_id = self.kwargs.get('vehicle_id')

@@ -13,6 +13,7 @@ from django.db.models import Sum, F
 from .models import Expense, Receipt
 from .forms import ExpenseForm, ReceiptForm
 from vehicles.models import Vehicle
+from django.http import JsonResponse
 
 class ExpenseListView(LoginRequiredMixin, ListView):
     model = Expense
@@ -116,3 +117,21 @@ def add_receipt(request, expense_id):
         form = ReceiptForm()
     
     return render(request, 'expenses/add_receipt.html', {'form': form, 'expense': expense})
+
+@login_required
+def get_expenses_by_vehicle(request, vehicle_id):
+    """API endpoint to get expenses for a specific vehicle"""
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id, owner=request.user)
+    expenses = Expense.objects.filter(vehicle=vehicle).order_by('-date')
+    
+    expense_data = []
+    for expense in expenses:
+        expense_data.append({
+            'id': expense.id,
+            'date': expense.date.strftime('%Y-%m-%d'),
+            'description': expense.description,
+            'amount': float(expense.amount),
+            'category': expense.category,
+        })
+    
+    return JsonResponse(expense_data, safe=False)

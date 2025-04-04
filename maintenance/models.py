@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from vehicles.models import Vehicle
 from django.utils import timezone
+from expenses.models import Expense
 
 class MaintenanceRecord(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='maintenance_records')
@@ -16,6 +17,7 @@ class MaintenanceRecord(models.Model):
     cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
+    expenses = models.ManyToManyField(Expense, blank=True, related_name='maintenance_records')
     
     def __str__(self):
         return f"{self.service_type} - {self.date}"
@@ -42,7 +44,12 @@ class MaintenanceSchedule(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"{self.name} for {self.vehicle.nickname}"
+        if self.vehicle:
+            return f"{self.name} for {self.vehicle.nickname}"
+        return f"{self.name} (No vehicle assigned)"
+    
+    def get_absolute_url(self):
+        return reverse('maintenance-schedule-detail', kwargs={'pk': self.pk})
     
     @property
     def next_service_date(self):

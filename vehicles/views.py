@@ -11,6 +11,7 @@ from django.views.generic import (
 )
 from .models import Vehicle, VehicleImage
 from .forms import VehicleForm, VehicleImageForm
+from django.db.models import Sum, F
 
 @login_required
 def dashboard(request):
@@ -28,6 +29,23 @@ class VehicleListView(LoginRequiredMixin, ListView):
 
 class VehicleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Vehicle
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        vehicle = self.get_object()
+        
+        # Calculate expense totals
+        expenses = vehicle.expenses.all()
+        total_spent = expenses.aggregate(
+            total=Sum(F('amount') + F('tax') + F('shipping') + F('labor_cost'))
+        )['total'] or 0
+        
+        # Count maintenance records
+        maintenance_count = vehicle.maintenance_records.count()
+        
+        context['total_spent'] = total_spent
+        context['maintenance_count'] = maintenance_count
+        return context
     
     def test_func(self):
         vehicle = self.get_object()

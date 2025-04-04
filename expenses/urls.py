@@ -17,4 +17,5 @@ urlpatterns = [
     path('<int:pk>/update/', ExpenseUpdateView.as_view(), name='expense-update'),
     path('<int:pk>/delete/', ExpenseDeleteView.as_view(), name='expense-delete'),
     path('<int:expense_id>/add_receipt/', views.add_receipt, name='add-receipt'),
+    path('api/vehicle/<int:vehicle_id>/', views.get_expenses_by_vehicle, name='api-vehicle-expenses'),
 ] 

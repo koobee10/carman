@@ -8,10 +8,14 @@
     {% endif %}
 {% endblock %}
 
+{% block extrahead %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
 {% block content %}
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-lg-10">
             <div class="card">
                 <div class="card-header bg-dark text-white">
                     <h2 class="h4 mb-0">
@@ -48,12 +52,14 @@
                         
                         <div class="row mt-3">
                             <div class="col-md-6">
+                                <h5 class="border-bottom pb-2 mb-3">Cost Information</h5>
+                                {{ form.cost|as_crispy_field }}
+                                {{ form.expenses|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
                                 <h5 class="border-bottom pb-2 mb-3">Shop Information</h5>
                                 {{ form.shop_name|as_crispy_field }}
                                 {{ form.shop_location|as_crispy_field }}
-                            </div>
-                            <div class="col-md-6">
-                                <h5 class="border-bottom pb-2 mb-3">Additional Information</h5>
                                 {{ form.notes|as_crispy_field }}
                             </div>
                         </div>
@@ -78,4 +84,58 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Initialize Select2
+        $('.select2').select2({
+            placeholder: "Select related expenses",
+            allowClear: true,
+            width: '100%'
+        });
+        
+        // For existing records, trigger the expense loading initially
+        var initialVehicleId = $('#id_vehicle').val();
+        if (initialVehicleId) {
+            loadExpensesForVehicle(initialVehicleId);
+        }
+        
+        // Filter expenses when vehicle changes
+        $('#id_vehicle').on('change', function() {
+            var vehicleId = $(this).val();
+            if (vehicleId) {
+                loadExpensesForVehicle(vehicleId);
+            } else {
+                $('#id_expenses').html('').trigger('change');
+            }
+        });
+        
+        function loadExpensesForVehicle(vehicleId) {
+            $.ajax({
+                url: '/api/expenses/vehicle/' + vehicleId + '/',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    // Get currently selected values before replacing options
+                    var currentSelections = $('#id_expenses').val() || [];
+                    
+                    // Create the new options
+                    var options = '';
+                    $.each(data, function(index, expense) {
+                        options += '<option value="' + expense.id + '">' + 
+                                   expense.date + ' - ' + expense.description + 
+                                   ' ($' + expense.amount + ')</option>';
+                    });
+                    
+                    // Replace the options and restore selections
+                    $('#id_expenses').html(options);
+                    $('#id_expenses').val(currentSelections).trigger('change');
+                }
+            });
+        }
+    });
+</script>
 {% endblock %} 

@@ -95,15 +95,17 @@
         </div>
         
         <div class="col-md-4 mb-4">
-            {% if expense.receipt %}
+            {% if expense.receipts.all %}
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h2 class="card-title h4 mb-3">Receipt</h2>
-                    <a href="{{ expense.receipt.url }}" target="_blank">
-                        <img src="{{ expense.receipt.url }}" alt="Receipt for {{ expense.description }}" class="img-fluid rounded mb-3">
+                    {% for receipt in expense.receipts.all %}
+                    <a href="{{ receipt.image.url }}" target="_blank">
+                        <img src="{{ receipt.image.url }}" alt="Receipt for {{ expense.description }}" class="img-fluid rounded mb-3">
                     </a>
+                    {% endfor %}
                     <div class="text-center">
-                        <a href="{{ expense.receipt.url }}" class="btn btn-primary" target="_blank">
+                        <a href="{{ expense.receipts.first.image.url }}" class="btn btn-primary" target="_blank">
                             <i class="fas fa-search-plus"></i> View Full Size
                         </a>
                     </div>

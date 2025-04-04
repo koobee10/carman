@@ -40,10 +40,10 @@
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Vehicle:</strong> 
-                            {% if record.vehicle and record.vehicle.id %}
+                            {% if record.vehicle %}
                             <a href="{% url 'vehicle-detail' record.vehicle.id %}">{{ record.vehicle.nickname }}</a>
                             {% else %}
-                            {{ record.vehicle.nickname|default:"No vehicle assigned" }}
+                            No vehicle assigned
                             {% endif %}
                             </p>
                             <p><strong>Date:</strong> {{ record.date|date:"F d, Y" }}</p>
@@ -69,6 +69,49 @@
                             {% endif %}
                         </div>
                     </div>
+                    
+                    {% if record.expenses.all %}
+                    <hr>
+                    <h6>Related Expenses</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th class="text-end">Amount</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for expense in record.expenses.all %}
+                                <tr>
+                                    <td>{{ expense.date|date:"M d, Y" }}</td>
+                                    <td>{{ expense.description }}</td>
+                                    <td>
+                                        <span class="badge 
+                                        {% if expense.category == 'parts' %}bg-primary
+                                        {% elif expense.category == 'service' %}bg-success
+                                        {% elif expense.category == 'fluids' %}bg-warning text-dark
+                                        {% elif expense.category == 'tools' %}bg-secondary
+                                        {% elif expense.category == 'accessories' %}bg-info text-dark
+                                        {% else %}bg-dark{% endif %}">
+                                            {{ expense.category }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">{{ currency_symbol }}{{ expense.amount|floatformat:2 }}</td>
+                                    <td class="text-center">
+                                        <a href="{% url 'expense-detail' expense.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
                     
                     {% if record.notes %}
                     <hr>
